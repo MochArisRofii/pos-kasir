@@ -4,12 +4,12 @@ kasir = mengelola data toko dan barang masuk dan keluar,
 
 
 fitur = absen menggunakan nik
-        transaksi bisa menggunakan qris,debit
+        transaksi bisa menggunakan qris,debit == masih tunai
         pengelolahan produk by kategori 
             = prodsus bisa di edit kasir/anak toko, selaian prodsus tidak bisa di edit oleh pihak toko 
-        pencarian produk bisa melalui nama,plu,barcode
+        pencarian produk bisa melalui nama,plu,barcode == masih cuma nama saja
         pelengkap promo produk = harga lebih murah (tambah field harga sebelum&sesudah)
-        pembelian pulsa juga bisa 
+        pembelian pulsa juga bisa  
         penerimaan barang dari admin untuk non prodsus by barcode 
         menu konversi untuk prodsus buah potong 
         penggunaan tombol :
@@ -18,4 +18,3 @@ fitur = absen menggunakan nik
         f6 = pembayaran tunai
         f7 = pembayaran non tunai (qris, debit)
         f10 =  pembelian pulsa
-        
