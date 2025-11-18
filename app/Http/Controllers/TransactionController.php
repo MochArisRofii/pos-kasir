@@ -6,7 +6,9 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class TransactionController extends Controller
 {
@@ -21,12 +23,29 @@ class TransactionController extends Controller
 
     public function create()
     {
+        // Cek jika user adalah kasir dan sudah inisialisasi
+        if (Auth::user()->role === 'cashier' && !Session::get('cashier_initialized')) {
+            return redirect()->route('cashier.initialize')
+                ->with('error', 'Silakan inisialisasi kasir terlebih dahulu.');
+        }
+
+        // Load semua produk, batasi tampilan di frontend
         $products = Product::where('stock', '>', 0)->get();
+
         return view('transactions.create', compact('products'));
     }
 
     public function store(Request $request)
     {
+        // Cek jika user adalah kasir dan sudah inisialisasi
+        if (Auth::user()->role === 'cashier' && !Session::get('cashier_initialized')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kasir belum diinisialisasi.'
+            ], 403);
+        }
+
+        // ... sisa kode store method yang sudah ada
         DB::beginTransaction();
 
         try {
@@ -65,7 +84,7 @@ class TransactionController extends Controller
             }
 
             // Calculate final amount
-            $tax = $totalAmount * 0.1; // 10% tax example
+            $tax = $totalAmount * 0.1;
             $finalAmount = $totalAmount + $tax;
 
             $transaction->update([
@@ -89,6 +108,7 @@ class TransactionController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    
     }
 
     // PERBAIKAN: Update method show

@@ -23,6 +23,7 @@ class ProductSeeder extends Seeder
                 'price' => 25000,
                 'stock' => 50,
                 'barcode' => '1234567890123',
+                'plu' => '20111683',
                 'category_id' => $categories->where('name', 'Makanan')->first()->id
             ],
             [
@@ -31,6 +32,7 @@ class ProductSeeder extends Seeder
                 'price' => 8000,
                 'stock' => 100,
                 'barcode' => '1234567890124',
+                'plu' => '20111684',
                 'category_id' => $categories->where('name', 'Minuman')->first()->id
             ],
             [
@@ -39,6 +41,7 @@ class ProductSeeder extends Seeder
                 'price' => 12000,
                 'stock' => 30,
                 'barcode' => '1234567890125',
+                'plu' => '20111685',
                 'category_id' => $categories->where('name', 'Snack')->first()->id
             ],
             [
@@ -47,6 +50,7 @@ class ProductSeeder extends Seeder
                 'price' => 75000,
                 'stock' => 20,
                 'barcode' => '1234567890126',
+                'plu' => '20111686',
                 'category_id' => $categories->where('name', 'Elektronik')->first()->id
             ],
             [
@@ -55,6 +59,7 @@ class ProductSeeder extends Seeder
                 'price' => 120000,
                 'stock' => 15,
                 'barcode' => '1234567890127',
+                'plu' => '20111687',
                 'category_id' => $categories->where('name', 'Peralatan Rumah Tangga')->first()->id
             ],
         ];

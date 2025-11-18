@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -25,7 +26,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -35,6 +36,24 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
+        // $this->middleware('auth')->only('logout');
+    }
+
+    // Custom method untuk login dengan NIK
+    public function username()
+    {
+        return 'nik';
+    }
+
+    // Optional: Custom validation messages
+    protected function validateLogin(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+            'password' => 'required|string',
+        ], [
+            'nik.required' => 'NIK wajib diisi',
+            'password.required' => 'Password wajib diisi',
+        ]);
     }
 }

@@ -51,22 +51,23 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'nik' => ['required', 'string', 'size:16', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'nik.required' => 'NIK wajib diisi',
+            'nik.size' => 'NIK harus 16 digit',
+            'nik.unique' => 'NIK sudah terdaftar',
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
     protected function create(array $data)
     {
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'nik' => $data['nik'],
             'password' => Hash::make($data['password']),
+            'role' => 'cashier', // Default role untuk user baru
         ]);
     }
 }

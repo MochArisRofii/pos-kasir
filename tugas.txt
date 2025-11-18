@@ -7,7 +7,7 @@ fitur = absen menggunakan nik
         transaksi bisa menggunakan qris,debit == masih tunai
         pengelolahan produk by kategori 
             = prodsus bisa di edit kasir/anak toko, selaian prodsus tidak bisa di edit oleh pihak toko 
-        pencarian produk bisa melalui nama,plu,barcode == masih cuma nama saja
+        pencarian produk bisa melalui nama,plu,barcode == Done 👍
         pelengkap promo produk = harga lebih murah (tambah field harga sebelum&sesudah)
         pembelian pulsa juga bisa  
         penerimaan barang dari admin untuk non prodsus by barcode 
@@ -18,3 +18,9 @@ fitur = absen menggunakan nik
         f6 = pembayaran tunai
         f7 = pembayaran non tunai (qris, debit)
         f10 =  pembelian pulsa
+        menu inisal yang berguna untuk transaksi, jika belum inisal maka menu transkasi tidak bisa di akses harus inisal terlebih dahulu dengan memasukkan nik == done 👍
+        ** ada menu tutup harian/shift yang berguna untuk menutup dan menyudahi transaksi hari itu juga, 
+        dan harus menginput uang penghasilan dan jika kondisi uang fisik dan uang di dalam system itu tidak sama itu bisa
+        di antara plus dan minus uang nya. == kurang penginputan uang penghasilan.
+
+

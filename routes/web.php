@@ -1,33 +1,65 @@
 <?php
 
+use App\Http\Controllers\CashierController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-// Products - CUSTOM ROUTES FIRST
-Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
-Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-Route::resource('products', ProductController::class); // RESOURCE ROUTE LAST
+// ==================== ADMIN ROUTES ====================
+Route::middleware(['auth', 'admin'])->group(function () {
+    // Products
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
+});
 
-// Transactions
-Route::resource('transactions', TransactionController::class);
+// ==================== CASHIER ROUTES ====================
+Route::middleware(['auth', 'cashier'])->group(function () {
+    // Cashier initialization
+    Route::get('/cashier/initialize', [CashierController::class, 'showInitializeForm'])->name('cashier.initialize');
+    Route::post('/cashier/initialize', [CashierController::class, 'initialize'])->name('cashier.initialize.submit');
+    Route::get('/cashier/deinitialize', [CashierController::class, 'deinitialize'])->name('cashier.deinitialize.get');
+    Route::post('/cashier/deinitialize', [CashierController::class, 'deinitialize'])->name('cashier.deinitialize');
+    
+    // Transactions
+    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+    
+    // Payments
+    Route::get('transactions/{transaction}/payments/create', [PaymentController::class, 'create'])->name('payments.create');
+    Route::post('transactions/{transaction}/payments', [PaymentController::class, 'store'])->name('payments.store');
+});
 
-// Payments
-Route::get('transactions/{transaction}/payments/create', [PaymentController::class, 'create'])->name('payments.create');
-Route::post('transactions/{transaction}/payments', [PaymentController::class, 'store'])->name('payments.store');
+// ==================== SHARED ROUTES ====================
+Route::middleware(['auth'])->group(function () {
+    // Transactions (bisa diakses kedua role)
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+    
+    // Profile
+    Route::get('/profile', function () {
+        return view('profile');
+    })->name('profile');
+});
 // NONAKTIFKAN SEMENTARA ROUTE QRIS
 // Route::get('payments/{payment}/check-status', [PaymentController::class, 'checkQrisStatus'])->name('payments.check-status');

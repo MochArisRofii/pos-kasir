@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,6 +18,7 @@
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
+
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
@@ -24,27 +26,48 @@
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }} - POS Kasir
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
+                    {{-- Di bagian Left Side Of Navbar --}}
                     @auth
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('products.index') }}">Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('transactions.index') }}">Transactions</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('transactions.create') }}">New Transaction</a>
-                        </li>
-                    </ul>
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('home') }}">Dashboard</a>
+                            </li>
+
+                            @if (Auth::user()->role === 'admin')
+                                {{-- Menu Admin --}}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('products.index') }}">Products</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('transactions.index') }}">Transactions</a>
+                                </li>
+                            @endif
+
+                            @if (Auth::user()->role === 'cashier')
+                                {{-- Menu Kasir --}}
+                                @if (Session::get('cashier_initialized'))
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('transactions.create') }}">New Transaction</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('transactions.index') }}">Transactions</a>
+                                    </li>
+                                @else
+                                    <li class="nav-item">
+                                        <a class="nav-link text-warning" href="{{ route('cashier.initialize') }}">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Initialize Cashier
+                                        </a>
+                                    </li>
+                                @endif
+                            @endif
+                        </ul>
                     @endauth
 
                     <!-- Right Side Of Navbar -->
@@ -64,13 +87,14 @@
                             @endif
                         @else
                             <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} ({{ Auth::user()->role }})
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
+                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
@@ -87,7 +111,7 @@
         </nav>
 
         <main class="py-4">
-            @if(session('success'))
+            @if (session('success'))
                 <div class="container">
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
@@ -96,7 +120,7 @@
                 </div>
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 <div class="container">
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ session('error') }}
@@ -109,4 +133,5 @@
         </main>
     </div>
 </body>
+
 </html>

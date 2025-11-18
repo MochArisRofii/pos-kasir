@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\Catergory;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -18,7 +19,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
     public function getCsvSettings(): array
     {
         return [
-            'delimiter' => ',', // Pastikan menggunakan koma
+            'delimiter' => ',',
             'enclosure' => '"',
             'escape_character' => '\\',
             'input_encoding' => 'UTF-8',
@@ -57,25 +58,25 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
     {
         $combinedKey = array_keys($row)[0];
         $combinedValue = $row[$combinedKey];
-
+        
         Log::info('Parsing combined row: ' . $combinedValue);
 
         // Split the combined value by comma
         $values = str_getcsv($combinedValue, ',', '"', '\\');
-
-        // Expected fields order
-        $expectedFields = ['nama_produk', 'harga', 'stok', 'kategori', 'barcode', 'deskripsi'];
-
+        
+        // Expected fields order (tambah PLU)
+        $expectedFields = ['nama_produk', 'harga', 'stok', 'kategori', 'barcode', 'plu', 'deskripsi'];
+        
         if (count($values) >= 4) { // Minimal required fields
             $parsedRow = [];
             foreach ($expectedFields as $index => $field) {
                 $parsedRow[$field] = $values[$index] ?? null;
             }
-
+            
             Log::info('Parsed row: ', $parsedRow);
             return $this->createProduct($parsedRow);
         }
-
+        
         Log::warning('Failed to parse combined row');
         return null;
     }
@@ -83,13 +84,11 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
     private function createProduct(array $normalizedRow)
     {
         // Check if required fields exist in normalized data
-        if (
-            !isset($normalizedRow['nama_produk']) || empty(trim($normalizedRow['nama_produk'] ?? '')) ||
+        if (!isset($normalizedRow['nama_produk']) || empty(trim($normalizedRow['nama_produk'] ?? '')) ||
             !isset($normalizedRow['harga']) || empty(trim($normalizedRow['harga'] ?? '')) ||
             !isset($normalizedRow['stok']) || empty(trim($normalizedRow['stok'] ?? '')) ||
-            !isset($normalizedRow['kategori']) || empty(trim($normalizedRow['kategori'] ?? ''))
-        ) {
-
+            !isset($normalizedRow['kategori']) || empty(trim($normalizedRow['kategori'] ?? ''))) {
+            
             Log::warning('Skipping row - missing required fields');
             Log::warning('Available fields: ' . implode(', ', array_keys($normalizedRow)));
             return null;
@@ -98,12 +97,12 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
         // Clean the data
         $categoryName = trim($normalizedRow['kategori']);
         $productName = trim($normalizedRow['nama_produk']);
-
+        
         Log::info('Processing: ' . $productName . ' - ' . $categoryName);
 
         // Cari category berdasarkan nama, jika tidak ada buat baru
         $category = Catergory::where('name', $categoryName)->first();
-
+        
         if (!$category) {
             // Buat category baru
             $category = Catergory::create([
@@ -119,9 +118,22 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
             $barcode = 'BRC-' . time() . '-' . rand(1000, 9999);
         }
 
+        // Handle PLU - generate jika kosong
+        $plu = isset($normalizedRow['plu']) ? trim($normalizedRow['plu']) : null;
+        if (empty($plu)) {
+            $plu = Product::generatePLU();
+        } else {
+            // Validasi PLU harus 6-8 digit angka
+            $plu = preg_replace('/[^0-9]/', '', $plu);
+            if (strlen($plu) < 6 || strlen($plu) > 8) {
+                $plu = Product::generatePLU();
+            }
+        }
+
         // Cek duplikat product
         $existingProduct = Product::where('name', $productName)
             ->orWhere('barcode', $barcode)
+            ->orWhere('plu', $plu)
             ->first();
 
         if ($existingProduct) {
@@ -136,16 +148,16 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithCus
             'price' => (int) $normalizedRow['harga'],
             'stock' => (int) $normalizedRow['stok'],
             'barcode' => $barcode,
+            'plu' => $plu, // Tambahkan PLU
             'category_id' => $category->id,
         ]);
 
         // Simpan product dan cek hasilnya
         $saved = $product->save();
-
+        
         if ($saved) {
             $this->importedCount++;
-            Log::info('✅ Product SUCCESSFULLY saved: ' . $product->name . ' (ID: ' . $product->id . ')');
-            Log::info('Product details: ', $product->toArray());
+            Log::info('✅ Product SUCCESSFULLY saved: ' . $product->name . ' (ID: ' . $product->id . ', PLU: ' . $product->plu . ')');
         } else {
             Log::error('❌ FAILED to save product: ' . $product->name);
         }

@@ -94,11 +94,11 @@ class ProductController extends Controller
             mkdir($templateDir, 0755, true);
         }
 
-        // Create CSV template dengan delimiter koma yang benar
-        $csvContent = "nama_produk,harga,stok,kategori,barcode,deskripsi\n" .
-            "Indomie Goreng,3500,100,Makanan,1234567890123,\"Mi instan rasa goreng\"\n" .
-            "Coca Cola,8000,50,Minuman,1234567890124,\"Minuman bersoda\"\n" .
-            "Chitato,12000,30,Snack,1234567890125,\"Keripik kentang\"";
+        // Create CSV template dengan kolom PLU
+        $csvContent = "nama_produk,harga,stok,kategori,barcode,plu,deskripsi\n" .
+            "Indomie Goreng,3500,100,Makanan,1234567890123,100001,\"Mi instan rasa goreng\"\n" .
+            "Coca Cola,8000,50,Minuman,1234567890124,100002,\"Minuman bersoda\"\n" .
+            "Chitato,12000,30,Snack,1234567890125,100003,\"Keripik kentang\"";
 
         file_put_contents($templatePath, $csvContent);
 
@@ -150,5 +150,29 @@ class ProductController extends Controller
             return redirect()->route('products.index')
                 ->with('error', 'Error importing products: ' . $e->getMessage());
         }
+    }
+
+    public function loadMore(Request $request)
+    {
+        $offset = $request->get('offset', 0);
+        $limit = $request->get('limit', 10);
+
+        $products = Product::where('stock', '>', 0)
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+
+        return response()->json($products);
+    }
+
+    public function searchByPLU(Request $request)
+    {
+        $plu = $request->get('plu');
+
+        $product = Product::where('plu', $plu)
+            ->where('stock', '>', 0)
+            ->first();
+
+        return response()->json($product);
     }
 }
