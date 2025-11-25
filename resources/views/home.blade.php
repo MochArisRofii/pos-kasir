@@ -140,12 +140,17 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="d-grid gap-2">
-                                            <a href="{{ route('transactions.create') }}" class="btn btn-primary btn-lg">
-                                                New Transaction
-                                            </a>
-                                            <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
-                                                Manage Products
-                                            </a>
+                                            @if (Auth::user()->role === 'cashier')
+                                                <a href="{{ route('transactions.create') }}"
+                                                    class="btn btn-primary btn-lg">
+                                                    New Transaction
+                                                </a>
+                                            @endif
+                                            @if (Auth::user()->role === 'admin')
+                                                <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
+                                                    Manage Products
+                                                </a>
+                                            @endif
                                             <a href="{{ route('transactions.index') }}" class="btn btn-outline-primary">
                                                 View All Transactions
                                             </a>

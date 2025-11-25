@@ -46,6 +46,9 @@
                                     <a class="nav-link" href="{{ route('products.index') }}">Products</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('prodsus.index') }}">Produk Khusus</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('transactions.index') }}">Transactions</a>
                                 </li>
                             @endif
@@ -55,6 +58,9 @@
                                 @if (Session::get('cashier_initialized'))
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ route('transactions.create') }}">New Transaction</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('prodsus.process') }}">Proses Barang</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ route('transactions.index') }}">Transactions</a>
